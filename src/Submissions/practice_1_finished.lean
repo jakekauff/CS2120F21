@@ -13,6 +13,11 @@ this question that makes it much easier to answer than it might
 at first appear.
 -/
 
+/-
+We know that w = z. By the symmetric property of equality, it thus 
+follows that z = w.
+-/
+
 /- #2
 Give a formal statement of the conjecture (proposition) from
 #1 by filling in the "hole" in the following definition. The
@@ -21,8 +26,13 @@ is prop_1. The type of the value is Prop (which is the type of
 all propositions in Lean). 
 -/
 
-def prop_1 : Prop := 
-  _
+def prop_1 : Prop :=
+    ∀ (T : Type)
+      ( x y z w : T ),
+      x = y →
+      y = z →
+      w = z →
+      z = w
 
 /- #3 (extra credit)
 Give a formal proof of the proposition from #2 by filling in
@@ -33,7 +43,9 @@ again, called eq.refl, eq.subst, eq.symm, eq.trans.
 
 theorem prop_1_proof : prop_1 := 
 begin
-  _
+  assume T x y z w,
+  assume h1 h2 h3,
+  apply eq.symm h3,
 end
 
 /-
@@ -47,12 +59,16 @@ what do you do? (I'm being a little informal in leaving out the
 type of X.) 
 -/
 
+/-
+Assume arbitrary x, show P x.
+-/
+
 /- #5
 Suppose you have a proof, let's call it pf, of the proposition,
 (∀ x, P x), and you need a proof of P t, for some particular t.
 Write an expression then uses the elimination rule for ∀ to get
 such a proof. Complete the answer by replacing the underscores
-in the following expression: ( _ _ ). 
+in the following expression: ( pf t ). 
 -/
 
 /-
@@ -76,7 +92,9 @@ Hint: put parenthesis around "n + 1" in your answer.
 -/
 
 def successor_of_even_is_odd : Prop := 
-  _
+  ∀ (n : ℕ),
+    ev n →
+    odd (n + 1)
 
 /- #7
 Suppose that "its_raining" and "the_streets_are_wet" are
@@ -88,7 +106,9 @@ by filling in the hole
 
 axioms (raining streets_wet : Prop)
 
-axiom if_raining_then_streets_wet : _
+axiom if_raining_then_streets_wet : 
+    raining →
+    streets_wet
   
 
 /- #9
@@ -102,8 +122,10 @@ you are asked to use the elimination rule for →.
 axiom pf_raining : raining
 
 example : streets_wet :=
- _
-
+begin
+  apply if_raining_then_streets_wet,
+  apply pf_raining,
+end
 /- 
 AND: ∧
 -/
@@ -149,6 +171,11 @@ theorem and_associative :
 begin
   intros P Q R h,
   have p : P := and.elim_left h,
+  have qr : Q ∧ R := and.elim_right h,
+  have q : Q := and.elim_left qr,
+  have r : R := and.elim_right qr,
+  have pq : P ∧ Q := and.intro p q,
+  exact and.intro pq r,
 end
 
 /- #11
@@ -162,10 +189,10 @@ proof, let's call it p_qr, of (P ∧ (Q ∧ R)) [by
 application of ∧ and → introduction.] What now
 remains to be proved is ((P ∧ Q) ∧ R). We can
 construct a proof of this proposition by applying
-_____ to a proof of (P ∧ Q) and a proof of R.
-What remains, then, is to obtain these proofs.
+the introduction rule for and to a proof of (P ∧ Q) 
+and a proof of R. What remains, then, is to obtain these proofs.
 But this is easily done by the application of
-____ to ____. QED. 
+the and elimination rule to p_qr. QED. 
 -/
 
 
