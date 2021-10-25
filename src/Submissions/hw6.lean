@@ -12,15 +12,13 @@ begin
   apply set.ext _ ,
   assume a,
   split,
-
+  --forward
   assume a,
   cases a,
   exact a_left,
-
-  assume a,
-  apply set.mem_inter,
-  exact a,
-  exact a,
+  --backward
+  assume ainL,
+  exact and.intro ainL ainL,
 end
 
 /-
@@ -78,30 +76,33 @@ language (informal) proof of this fact.
 -- such that, for set X of arbitrary type α, X ⊆ X.
 -- Further, for three sets X, Y, and Z, X ⊆ Y → Y ⊆ Z → X ⊆ Z.
 
--- Formal Proofs:
+-- Formal Proof:
 
-example: ∀ {α : Type} ( X : set α ), X ⊆ X  :=
+example: ∀ {α : Type} ( X : set α ), X ⊆ X ∧ ∀ {α : Type} ( X Y Z : set α ), X ⊆ Y → Y ⊆ Z → X ⊆ Z :=
 begin
+  -- reflexive
   assume α X,
-  apply set.subset.refl,
-end 
-#check trans
-example: ∀ {α : Type} ( X Y Z : set α) (h : X ⊆ Y) (h' : Y ⊆ Z), X ⊆ Z :=
-begin
-  assume α X Y Z,
-  assume h,
-  assume h',
-  apply trans h h',
+  split,
+  assume x,
+  assume xinX,
+  exact xinX,
+  -- transitive
+  assume α X Y Z xsubY ysubZ,
+  assume x,
+  assume xinX,
+  have xinY := xsubY xinX,
+  have xinZ := ysubZ xinY,
+  exact xinZ,
 end
+
 
 -- English Language Proofs:
 -- We first prove that ⊆ is reflexive. We assume a set X of an arbitrary type.
 -- Next, we apply the theorem of subset reflexivity, which states that a set
 -- is a subset of itself. QED.
 -- Next, we prove that ⊆ is transitive. We assume sets X Y and Z of an arbitrary
--- type, and that X ⊆ Y and Y ⊆ Z. We then prove X ⊆ Z by applying the theorem of
--- transitivity, which states that a proof any operation of X onto Y and of Y onto Z
--- provides evidence of the operation of X onto Z. QED.
+-- type, and that X ⊆ Y and Y ⊆ Z. We then prove X ⊆ Z by assuming an arbitrary
+-- value that is in X and showing that a value in X is in Y and thus in Z. QED.
 /-
 Exercise: Prove that ∪ and ∩ are associative.
 Give a formal statement, a formal proof, and an 
@@ -119,7 +120,19 @@ begin
   assume α X Y Z,
   apply set.ext _,
   assume x,
-  apply and.assoc,
+  split,
+  --forward
+  assume h,
+  cases h with XnY z,
+  apply and.intro,
+  apply and.elim_left XnY,
+    exact and.intro (and.elim_right XnY) z,
+  --backward
+  assume h,
+  cases h with x ynz,
+  apply and.intro,
+  exact and.intro x (and.elim_left ynz),
+    exact and.elim_right ynz,
 end
 
 example: ∀ {α : Type} (X Y Z : set α), (X ∪ Y) ∪ Z = X ∪ (Y ∪ Z) :=
@@ -127,7 +140,31 @@ begin
   assume α X Y Z,
   apply set.ext _,
   assume x,
-  apply or.assoc,
+  split,
+  --forward
+  assume h,
+  cases h with XuY z,
+  cases XuY,
+  apply or.intro_left,
+  exact XuY,
+    apply or.intro_right,
+    apply or.intro_left,
+    exact XuY,
+      apply or.intro_right,
+      apply or.intro_right,
+      exact z,
+  --backward
+  assume h,
+  cases h,
+  apply or.intro_left,
+  apply or.intro_left,
+  exact h,
+    cases h,
+    apply or.intro_left,
+    apply or.intro_right,
+    exact h,
+      apply or.intro_right,
+      exact h,
 end
 
 -- English Language Proofs
@@ -201,8 +238,7 @@ and informally that ∪ is left-distributive over ∩.
 example : ∀ {α : Type} (X Y Z : set α), X ∪ (Y ∩ Z) = (X ∪ Y) ∩ (X ∪ Z) :=
 begin
   assume α X Y Z,
-  apply sup_inf_left, -- Found on source provided by Prof. Full proof partly below.
-  /-apply set.ext _,
+  apply set.ext _,
   assume x,
   
   apply iff.intro _ _,
@@ -224,28 +260,26 @@ begin
         show x ∈ X ∨ x ∈ Z,
         apply or.intro_right,
         exact z,
+
   -- backward
   assume h,
-  cases h with xy xz,
-  --cases xy,
-  cases xz,
-  show x ∈ X ∨ x ∈ Y ∧ x ∈ Z,
+  have XuY := and.elim_left h,
+  have XuZ := and.elim_right h,
+  cases XuY,
+  cases XuZ,
   apply or.intro_left,
-  exact xz,
-
-  --show x ∈ X ∨ x ∈ Y ∧ x ∈ Z,
-  --cases xy,
-  --apply or.intro_left,
-  --exact xy,
-  --have idk := or.elim xz,
-  --cases xz,
-  --apply or.intro_left,
-  --exact xy,-/
-
+  exact XuY,
+    apply or.intro_left,
+    exact XuY,
+    cases XuZ,
+      apply or.intro_left,
+      exact XuZ,
+        apply or.intro_right,
+        exact and.intro XuY XuZ,
 end
 
 -- English Language:
 -- We show that ∪ is left-distributive over ∩, such that for any three sets
 -- of the same arbitrary type, X ∪ (Y ∩ Z) = (X ∪ Y) ∩ (X ∪ Z). By case analysis,
 -- we can see that if x ∈ X ∨ x ∈ Y ∧ x ∈ Z, the following must hold: x ∈ Y ∨ X ∈ Z
--- ∧ x ∈ X ∨ x ∈ Z. QED.
+-- ∧ x ∈ X ∨ x ∈ Z. In the reverse direction, we similarly perform case analysis. QED.
