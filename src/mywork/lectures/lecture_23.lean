@@ -39,7 +39,7 @@ needed to be "functions."
 def anti_reflexive := ∀ x, ¬ x ≺ x
 def irreflexive := anti_reflexive r -- sometimes used
 def anti_symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x → x = y
-def asymmetric := ∀ ⦃x y⦄, x ≺ y → ¬ y ≺ x
+def asymmetric := ∀ ⦃x y⦄, x ≺ y → ¬ y ≺ x -- example: less than, greater than
 
 -- Exercises:
 /-
@@ -47,8 +47,8 @@ def asymmetric := ∀ ⦃x y⦄, x ≺ y → ¬ y ≺ x
 - Name a common asymmetric relation in arithmetic
 -/
 
-example : reflexive r → ¬ asymmetric r := _   -- true?
-example : ¬ reflexive r ↔ irreflexive r := _  -- true?
+example : reflexive r → ¬ asymmetric r := _-- true? true!
+example : ¬ reflexive r ↔ irreflexive r := _  -- true? false!
 
 
 inductive tc {α : Type} (r : α → α → Prop) : α → α → Prop

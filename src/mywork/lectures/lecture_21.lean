@@ -61,7 +61,9 @@ is exceedingly clear. This is it. In English
 you can say "a relation, ≺, is reflexive if 
 it relates every value, x, to itself.""
 -/
-def reflexive := ∀ x, x ≺ x
+def reflexive := ∀ x, x ≺ x 
+-- proposition builder. predicate on binary relations.
+-- when applied to binary relation, gives a proposition. 
 
 /-
 Filling in the implicit arguments and
@@ -109,6 +111,9 @@ to let us write the implicit argument(s)
 explicitly. 
 -/
 begin
+  unfold reflexive, -- abstract concept in set theory
+  assume x,         -- has meaning in logic
+  trivial,
 end
 
 /-
@@ -166,7 +171,7 @@ expression.
 -/
 
 def reflexive_relations := 
-  { r : β → β → Prop | reflexive r }
+  { r : β → β → Prop | reflexive r } -- set of all binary relations r such that r is reflexive.
 
 -- That's pretty cool. Says a lot, very precisely.
 
@@ -184,6 +189,8 @@ problems, except perhaps extra credit, where I
 expect you to know when exactly to use it. 
 -/
 example : @eq nat ∈ @reflexive_relations nat := 
+-- proposition: equality on the natural numbers is 
+-- in the set of all reflexive relations on the natural numbers.
 begin
   show reflexive_relations (@eq nat),
   unfold reflexive_relations,
@@ -247,6 +254,9 @@ of higher-order logic, make it *far* preferable
 to FOPL as a logic to learn in a first course
 on logic and proof for computer scientists. 
 
+__you cannot quantify over higher order things__
+__such as functions, in FOPL__
+
 And now we return to our regularly scheduled
 programming!
 -/
@@ -265,6 +275,10 @@ give a brief defense of your answer.
 
 theorem eq_is_symm : symmetric (@eq α) :=
 begin
+  unfold symmetric,
+  assume x y xy,
+  apply eq.symm,
+  exact xy,
 end
 
 /-
@@ -278,6 +292,9 @@ def transitive := ∀ ⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
 
 example : transitive (@eq α) :=
 begin
+  unfold transitive, --__unfold translates from set theory to predicate logic__ 
+  assume x y z xy yz,
+  exact eq.trans xy yz,
 end
 
 /-
@@ -294,7 +311,29 @@ lemma mk_equivalence (rfl : reflexive r) (symm : symmetric r) (trans : transitiv
 -- Exercise
 theorem eq_is_equivalence : equivalence (@eq β) :=
 begin
+  unfold equivalence,
+  apply and.intro,
+    unfold reflexive,
+    assume x,
+    apply eq.refl,
+  apply and.intro,
+    unfold symmetric,
+    assume x y xy,
+    exact eq.symm xy,
+      unfold transitive,
+      assume x y z xy yz,
+      exact eq.trans xy yz,
 end
+
+/-
+∀ ( k : ℕ ), ∃ an equivalence class of values that are congruent to each other mod 4
+
+13 is congruent to 9, mod 4
+                            -- multiples of 4 apart from each other → congruent mod 4
+11 is congruent to 3, mod 4
+
+Congruence mod 4 is symmetric, reflexive, and transitive → congruence is an equivalence relationship.
+-/
 
 /-
 ADDITIONAL PROPERTIES OF RELATIONS. NEXT LECTURE.

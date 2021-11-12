@@ -28,5 +28,16 @@ def partial_order :=    reflexive r ∧ transitive r ∧ anti_symmetric r ∧ ¬
 
 def total_order :=      reflexive r ∧ transitive r ∧ anti_symmetric r ∧ strongly_connected r
 
+def well_ordering := total_order ∧ 
+    (
+      ∀ ( s : set β ),
+      ∃ ( b : β ), 
+        (∀ (b' : β), b' ∈ S → b ≺ b')
+    )
+
+def inverse (r : α → β → Prop) := 
+λ (b : β) (a : α), r a b
+
+
 end relation
 end relations
